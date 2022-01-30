@@ -1,0 +1,34 @@
+{
+  "name": "weatherstation_elsnerp03",
+  "version": "1.1",
+  "description": "JSON REST API for Weather Station Elsner P03 RS-485",
+  "main": "index.js",
+  "directories": {
+    "example": "examples",
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "test"
+  },
+  "keywords": [
+    "Elsner",
+    "P03",
+    "Weather",
+    "Station",
+    "JSON",
+    "REST",
+    "API"
+  ],
+  "author": "Manuel Pucher",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.17.2",
+    "serialport": "^9.2.8",
+    "watchout": "^0.0.5"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.13",
+    "@types/node": "^17.0.13",
+    "@types/serialport": "^8.0.2"
+  }
+}
