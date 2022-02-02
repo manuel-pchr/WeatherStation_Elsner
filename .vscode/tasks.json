@@ -12,6 +12,82 @@
 				"isDefault": true
 			},
 			"label": "tsc: build - tsconfig.json"
-		}
+		},
+		{
+			"type": "docker-build",
+			"label": "docker-build",
+			"platform": "node",
+			"dockerBuild": {
+				"dockerfile": "${workspaceFolder}/Dockerfile",
+				"context": "${workspaceFolder}",
+				"pull": true
+			}
+		},
+		{
+			"type": "docker-run",
+			"label": "docker-run: release",
+			"dependsOn": [
+				"docker-build"
+			],
+			"platform": "node"
+		},
+		{
+			"type": "docker-run",
+			"label": "docker-run: debug",
+			"dependsOn": [
+				"Run docker-compose up"
+			],
+			"dockerRun": {
+				"env": {
+					"DEBUG": "*",
+					"NODE_ENV": "development"
+				},
+				"ports": [
+					{
+						"containerPort": 80,
+						"hostPort": 3000
+					},
+					{
+						"containerPort": 9229,
+						"hostPort": 9229
+					},
+				],
+				"volumes": [
+					{
+						"localPath": "${workspaceFolder}",
+						"containerPath": "/usr/src/app"
+					}
+				],
+			},
+			"node": {
+				"enableDebugging": false
+			}
+		},
+		{
+			"label": "Run docker-compose up",
+			"type": "docker-compose",
+			"dockerCompose": {
+				"up": {
+					"detached": true,
+					"build": true,
+					"services": [
+						// "myservice"
+					]
+				},
+				"files": [
+					"${workspaceFolder}/docker-compose.yml",
+					"${workspaceFolder}/docker-compose.debug.yml"
+				]
+			}
+		},
+		// {
+		// 	"type": "shell",
+		// 	"label": "compose-up-dev",
+		// 	"command": "docker-compose -f docker-compose.yml -f docker-compose.debug.yml up -d --build",
+		// 	"presentation": {
+		// 		"reveal": "always",
+		// 		"panel": "new"
+		// 	}
+		// }
 	]
 }
