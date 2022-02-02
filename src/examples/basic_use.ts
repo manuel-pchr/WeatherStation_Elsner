@@ -1,4 +1,4 @@
-import * as WeatherStation from '../'
+import * as WeatherStation from '..'
 
 const myWeatherStation = new WeatherStation.ElsnerP03 ( {
     instanceName: 'WeatherStation_Example',
