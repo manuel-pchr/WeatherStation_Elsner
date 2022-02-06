@@ -16,7 +16,7 @@ RUN apk --no-cache add --virtual native-deps \
 
 RUN npm install --production && mv node_modules ../
 COPY . .
-EXPOSE 80
+EXPOSE 3000
 RUN chown -R node /usr/src/app
 
 # use default user node for this image
@@ -24,10 +24,3 @@ USER node
 
 # run json api server application -
 CMD ["node", "build/json_api_server/app.js"]
-
-
-# Build Image
-# docker build -t weather_station_server:latest .
-
-# Run Image in detached mode with port forwarding to port 3000 from image port 80
-# docker run -d -p 3000:80 -e PORT=80 --name weatherStation --restart=on-failure weather_station_server:latest
