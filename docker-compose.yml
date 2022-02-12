@@ -1,11 +1,9 @@
-version: '3.4'
-
 services:
-  weatherstationelsnerp03:
-    image: weatherstationelsnerp03
+  weatherstation:
     build:
-      context: .
+      context: ./
       dockerfile: ./Dockerfile
+    env_file: /docker/env_dist/weatherstation.env
     environment:
       NODE_ENV: production
     ports:
