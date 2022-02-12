@@ -9,6 +9,9 @@ COPY ["package.json", "package-lock.json*", "npm-shrinkwrap.json*", "./"]
 # npm latest version needed for downloading packages
 RUN npm install -g npm@latest
 
+# for development only
+RUN npm install -g nodemon
+
 # needed for compiling serialport npm package
 RUN apk --no-cache add --virtual native-deps \
     g++ gcc libgcc libstdc++ linux-headers make python3 && \
@@ -23,4 +26,4 @@ RUN chown -R node /usr/src/app
 USER node
 
 # run json api server application -
-CMD ["node", "build/json_api_server/app.js"]
+CMD ["npm", "start"]

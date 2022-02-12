@@ -2,16 +2,17 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-			"type": "typescript",
-			"tsconfig": "tsconfig.json",
+			"type": "shell",
+			"command": "tsc",
+			"args": [
+				"-p",
+				"\"${workspaceFolder}/tsconfig.json\""
+			],
 			"problemMatcher": [
 				"$tsc"
 			],
-			"group": {
-				"kind": "build",
-				"isDefault": true
-			},
-			"label": "tsc: build - tsconfig.json"
+			"group": "build",
+			"label": "tsc: build"
 		},
 		{
 			"type": "docker-build",
@@ -35,7 +36,7 @@
 			"type": "docker-run",
 			"label": "docker-run: debug",
 			"dependsOn": [
-				"Run docker-compose up"
+				"Run debug docker-compose up"
 			],
 			"dockerRun": {
 				"env": {
@@ -44,50 +45,38 @@
 				},
 				"ports": [
 					{
-						"containerPort": 80,
+						"containerPort": 3000,
 						"hostPort": 3000
 					},
 					{
 						"containerPort": 9229,
 						"hostPort": 9229
-					},
+					}
 				],
 				"volumes": [
 					{
-						"localPath": "${workspaceFolder}",
-						"containerPath": "/usr/src/app"
+						"localPath": "${workspaceFolder}/dist",
+						"containerPath": "/usr/src/app/dist"
 					}
-				],
+				]
 			},
 			"node": {
 				"enableDebugging": false
 			}
 		},
 		{
-			"label": "Run docker-compose up",
 			"type": "docker-compose",
+			"label": "Run debug docker-compose up",
 			"dockerCompose": {
 				"up": {
 					"detached": true,
 					"build": true,
-					"services": [
-						// "myservice"
-					]
+					"services": []
 				},
 				"files": [
-					"${workspaceFolder}/docker-compose.yml",
 					"${workspaceFolder}/docker-compose.debug.yml"
 				]
 			}
-		},
-		// {
-		// 	"type": "shell",
-		// 	"label": "compose-up-dev",
-		// 	"command": "docker-compose -f docker-compose.yml -f docker-compose.debug.yml up -d --build",
-		// 	"presentation": {
-		// 		"reveal": "always",
-		// 		"panel": "new"
-		// 	}
-		// }
+		}
 	]
 }

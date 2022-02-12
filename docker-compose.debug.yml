@@ -1,14 +1,14 @@
-version: '3.4'
-
 services:
-  weatherstationelsnerp03:
-    image: weatherstationelsnerp03
+  weatherstation:
     build:
-      context: .
+      context: ./
       dockerfile: ./Dockerfile
+    env_file: /docker/env_dev/weatherstation.env
     environment:
       NODE_ENV: development
+    volumes:
+      - './dist:/usr/src/app/dist'
     ports:
       - 3000:3000
       - 9229:9229
-    command: ["node", "--inspect=0.0.0.0:9229", "build/json_api_server/app.js"]
+    command: ["npm", "run", "start.dev"]

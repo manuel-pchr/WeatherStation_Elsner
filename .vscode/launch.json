@@ -2,7 +2,6 @@
     // Use IntelliSense to learn about possible attributes.
     // Hover to view descriptions of existing attributes.
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
     "configurations": [
         {
             "type": "node",
@@ -10,18 +9,18 @@
             "name": "Attach to Local",
             "address": "127.0.0.1",
             "port": 9229,
-            "localRoot": "${workspaceRoot}",
-            "remoteRoot": "/usr/src/app"
+            "localRoot": "${workspaceFolder}/dist",
+            "remoteRoot": "/usr/src/app/dist"
         },
         {
             "type": "node",
             "request": "attach",
-            "name": "Compose and Attach to Local",
+            "name": "Compose debug and Attach to Local",
             "address": "127.0.0.1",
             "port": 9229,
-            "localRoot": "${workspaceRoot}",
-            "remoteRoot": "/usr/src/app",
-            "preLaunchTask": "Run docker-compose up"
+            "localRoot": "${workspaceFolder}/dist",
+            "remoteRoot": "/usr/src/app/dist",
+            "preLaunchTask": "Run debug docker-compose up"
         }
     ]
 }

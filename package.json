@@ -1,14 +1,17 @@
 {
   "name": "weatherstation_elsnerp03",
-  "version": "1.1",
+  "version": "1.1.dev",
   "description": "JSON REST API for Weather Station Elsner P03 RS-485",
   "main": "index.js",
   "directories": {
     "example": "examples",
     "lib": "lib"
   },
-  "scripts": {
-    "test": "test"
+  "scripts": { 
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node dist/json_api_server/app.js",
+    "start.dev": "nodemon --delay 250ms --inspect=0.0.0.0:9229 --legacy-watch --watch dist dist/json_api_server/app.js",
+    "start.dev.pause": "nodemon --delay 250ms --inspect-brk=0.0.0.0:9229 --legacy-watch --watch dist dist/json_api_server/app.js"
   },
   "keywords": [
     "Elsner",
@@ -22,13 +25,16 @@
   "author": "Manuel Pucher",
   "license": "MIT",
   "dependencies": {
-    "express": "^4.17.2",
+    "processenv": "^3.0.9",
     "serialport": "^9.2.8",
+    "express": "^4.17.2",
     "watchout": "^0.0.5"
   },
   "devDependencies": {
+    "typescript": "^4.5.5",
     "@types/express": "^4.17.13",
     "@types/node": "^17.0.13",
-    "@types/serialport": "^8.0.2"
+    "@types/serialport": "^8.0.2",
+    "nodemon": "^2.0.15"
   }
 }
