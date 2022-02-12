@@ -95,8 +95,8 @@ export class ElsnerP03 extends EventEmitter
     if (parameters.httpPort) {
       this.httpPort = parameters.httpPort
     } else {
-      this.httpPort = 80
-      this.log.write('httpPort was not specified --> use default port 80')
+      this.httpPort = 3000
+      this.log.write('httpPort was not specified --> use default port 3000')
     }
 
     this.httpserver = new HttpServer({
@@ -112,7 +112,7 @@ export class ElsnerP03 extends EventEmitter
     this.watchdog_receiveData = new Watchout(3000, (haltedTimeout: number) => {
       if (haltedTimeout) { // Timeout did not occur
       } else {
-        let error = 'Timeout serial data'
+        let error = 'Timeout serial data - no data reiceived since 3 seconds'
         this.log.write(error)
         this.weatherData.Status.Communication = 'invalid'
         this.httpserver.setWeatherData(this.weatherData)
@@ -197,6 +197,7 @@ export class ElsnerP03 extends EventEmitter
 
   /** Create and open serial connection */
   private connectSerial(): SerialPort {
+    const that = this;
     return new SerialPort(this.comPort, {
       baudRate: 19200,
       dataBits: 8,
@@ -204,7 +205,9 @@ export class ElsnerP03 extends EventEmitter
       parity: 'none'
     }, function(err) {
       if(err) {
-        console.log('Error creating serial port connection: ', err);
+        console.log('Error creating/opening serial port connection: ', err);
+        
+        that.reconnectSerial();
       }
     })
   }
@@ -212,14 +215,14 @@ export class ElsnerP03 extends EventEmitter
   /** reconnect serial port */
   private reconnectSerial(): void {
     
-    this.log.write('Initiating reconnect...')
+    this.log.write('Trying to reconnect in 5 seconds...')
     
     setTimeout( () => {
       this.log.write('Reconnect serial port...')
      
       this.serialConnection = this.connectSerial();
    
-    }, 2000)
+    }, 5000)
   }
 
   private analyzeData (dataTelegram: Buffer): DataRows_ElsnerP03 { // on complete telegram received
