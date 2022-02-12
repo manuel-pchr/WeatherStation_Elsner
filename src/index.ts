@@ -104,16 +104,12 @@ export class ElsnerP03 extends EventEmitter
       instanceName: this.instanceName + '_HTTP_SRV_PORT' + this.httpPort,
       log_cmdLine: this.log_cmdLine
     })
-      
-    this.serialConnection = new SerialPort(this.comPort, {
-      baudRate: 19200,
-      dataBits: 8,
-      stopBits: 1,
-      parity: 'none'
-    })
+
+    this.serialConnection = this.connectSerial();
 
     /* ----- watchdogs ----- */
-    this.watchdog_receiveData = new Watchout(3000, (haltedTimeout: number) => { // 3seconds
+    /** Watchdog - watch if any data is received (3 seconds) */
+    this.watchdog_receiveData = new Watchout(3000, (haltedTimeout: number) => {
       if (haltedTimeout) { // Timeout did not occur
       } else {
         let error = 'Timeout serial data'
@@ -123,11 +119,12 @@ export class ElsnerP03 extends EventEmitter
         this.emit('update', this.weatherData, error)
       }
     })
-
-    this.watchdog_telegram = new Watchout(3000, (haltedTimeout: number) => { // 3seconds
+    
+    /** Watchdog - watch if valid telegram is received (5 seconds) */
+    this.watchdog_telegram = new Watchout(5000, (haltedTimeout: number) => {
       if (haltedTimeout) { // Timeout did not occur
       } else {
-        let error = 'Timeout serial data (no complete telegram was received)'
+        let error = 'Timeout serial data (no or incomplete telegram was received)'
         this.log.write(error)
         this.weatherData.Status.Communication = 'invalid'
         this.httpserver.setWeatherData(this.weatherData)
@@ -139,6 +136,8 @@ export class ElsnerP03 extends EventEmitter
     this.serialConnection.on('data',  (data: Array<number>) => {
       this.watchdog_receiveData.reset();
       
+      this.log.write('serialConnection.on(data)');
+
       if (data.toString().indexOf('W') > -1) { // start of telegram detected
         this.dataBuffer = Buffer.from(data)
       }
@@ -196,11 +195,30 @@ export class ElsnerP03 extends EventEmitter
     }
   }
 
+  /** Create and open serial connection */
+  private connectSerial(): SerialPort {
+    return new SerialPort(this.comPort, {
+      baudRate: 19200,
+      dataBits: 8,
+      stopBits: 1,
+      parity: 'none'
+    }, function(err) {
+      if(err) {
+        console.log('Error creating serial port connection: ', err);
+      }
+    })
+  }
+  
+  /** reconnect serial port */
   private reconnectSerial(): void {
-    this.log.write('Initiating reconnect!')
+    
+    this.log.write('Initiating reconnect...')
+    
     setTimeout( () => {
-      this.log.write('Reconnect!')
-      this.constructor()
+      this.log.write('Reconnect serial port...')
+     
+      this.serialConnection = this.connectSerial();
+   
     }, 2000)
   }
 
