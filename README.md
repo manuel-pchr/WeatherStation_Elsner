@@ -61,7 +61,7 @@ https://stackoverflow.com/questions/24225647/docker-a-way-to-give-access-to-a-ho
 
 ### Export image(for moving to another machine):
 ```
-docker save -o C:\weather_station_server_v1_1_dev.tar weather_station_server:version
+docker save -o C:\weather_station_server_version.tar weather_station_server:version
 ```
 
 ### Run Container:
