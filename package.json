@@ -1,6 +1,6 @@
 {
   "name": "weatherstation_elsnerp03",
-  "version": "1.1.dev",
+  "version": "1.1",
   "description": "JSON REST API for Weather Station Elsner P03 RS-485",
   "main": "index.js",
   "directories": {
@@ -16,10 +16,12 @@
   "keywords": [
     "Elsner",
     "P03",
+    "RS485",
     "Weather",
     "Station",
     "JSON",
     "REST",
+    "RESTful",
     "API"
   ],
   "author": "Manuel Pucher",
