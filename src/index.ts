@@ -113,8 +113,33 @@ export class ElsnerP03 extends EventEmitter
     /** init and connect to serial port */
     this.serialConnection = this.connectSerial();
 
-    /** watchdog - watch if any data is received (3 seconds) */
-    this.watchdog_receiveData = new Watchout(3000, (haltedTimeout: number) => {
+    /** init watchdogs */
+    this.attachWatchdogs();
+
+    this.attachSerialConnectionEvents();
+
+    this.attachShutdownHandlers();
+
+  }
+
+  /** set initial data object values */
+  private init_weatherData() {
+    this.weatherData = {
+      Temperature: { value: 'unknown', unit: 'degreeCelsius', info: 'Range -40 - 80, Accuracy +-1.5 at -25 - 80' },
+      SunSouth: { value: 'unknown', unit: 'klx', info: 'Range 0-99' },
+      SunWest: { value: 'unknown', unit: 'klx', info: 'Range 0-99' },
+      SunEast: { value: 'unknown', unit: 'klx', info: 'Range 0-99' },
+      Twilight: { value: 'unknown', unit: 'Y/N', info: 'Y when <10lx' },
+      DayLight: { value: 'unknown', unit: 'lx', info: 'Range 0-999' },
+      Wind: { value: 'unknown', unit: 'm/s', info: 'Range 0-70, Accuracy +-25% at 0-15'},
+      Rain: { value: 'unknown', unit: 'Y/N', info: 'Y when detected' },
+      Status: { Communication: 'unknown', TimeLastValidData: 'unknown', LastDataChecksum: 'unknown' }
+    }
+  }
+
+  private attachWatchdogs(): void {
+     /** watchdog - watch if any data is received (3 seconds) */
+     this.watchdog_receiveData = new Watchout(3000, (haltedTimeout: number) => {
       if (haltedTimeout) { // Timeout did not occur
       } else {
         let error = 'Timeout serial data - no data reiceived since 3 seconds';
@@ -138,12 +163,12 @@ export class ElsnerP03 extends EventEmitter
         this.reconnectSerial('watchdog');
       }
     });
+  }
 
+  private attachSerialConnectionEvents(): void {
     /** reiceive data from serial port */
     this.serialConnection.on('data',  (data: Array<number>) => {
       this.watchdog_receiveData.reset();
-      
-      this.log.write('serialConnection.on(data)');
 
       if (data.toString().indexOf('W') > -1) { // start of telegram detected
         this.dataBuffer = Buffer.from(data);
@@ -174,12 +199,14 @@ export class ElsnerP03 extends EventEmitter
 
     /* ----- serial connection events ----- */
     this.serialConnection.on('open', () => {
+      this.log.write('Serial connection open.');
       this.reconnectActive = false;
+      this.attachWatchdogs()
     });
 
     /** reconnect serial port on close signal */
     this.serialConnection.on('close', () => {
-      this.log.write('Serial connection closed! Try to reconnect...');
+      this.log.write('Serial connection closed.');
       
       this.reconnectSerial('close');
     });
@@ -188,24 +215,6 @@ export class ElsnerP03 extends EventEmitter
     this.serialConnection.on('error', (msg: string) => {
       this.log.write('serialConnection: ' + msg);
     });
-
-    this.attachShutdownHandlers();
-
-  }
-
-  /** set initial data object values */
-  private init_weatherData() {
-    this.weatherData = {
-      Temperature: { value: 'unknown', unit: 'degreeCelsius', info: 'Range -40 - 80, Accuracy +-1.5 at -25 - 80' },
-      SunSouth: { value: 'unknown', unit: 'klx', info: 'Range 0-99' },
-      SunWest: { value: 'unknown', unit: 'klx', info: 'Range 0-99' },
-      SunEast: { value: 'unknown', unit: 'klx', info: 'Range 0-99' },
-      Twilight: { value: 'unknown', unit: 'Y/N', info: 'Y when <10lx' },
-      DayLight: { value: 'unknown', unit: 'lx', info: 'Range 0-999' },
-      Wind: { value: 'unknown', unit: 'm/s', info: 'Range 0-70, Accuracy +-25% at 0-15'},
-      Rain: { value: 'unknown', unit: 'Y/N', info: 'Y when detected' },
-      Status: { Communication: 'unknown', TimeLastValidData: 'unknown', LastDataChecksum: 'unknown' }
-    }
   }
 
   /** create and open serial connection */
@@ -229,15 +238,25 @@ export class ElsnerP03 extends EventEmitter
   private reconnectSerial(source: reconnectSerialCommandSource): void {
 
     if(source === 'opening error' 
-      || source === 'close'
+      || (source === 'close' && !this.reconnectActive)
       || (source === 'watchdog' && !this.reconnectActive) ) {
       this.reconnectActive = true;
+
+      /** close open serial port before trying to reconnect */
+      if(this.serialConnection.isOpen) {
+        this.log.write('Close open serial port.');
+        this.serialConnection.close(error => {
+          this.log.write(`Error closing serial port: ${error}`);
+        });
+      }
+
       this.log.write('Trying to reconnect in 5 seconds...');
       
       setTimeout( () => {
         this.log.write('Reconnect serial port...');
       
         this.serialConnection = this.connectSerial();
+        this.attachSerialConnectionEvents();
     
       }, 5000)
     }
